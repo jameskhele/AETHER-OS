@@ -33,9 +33,10 @@ wss.on('connection', function connection(ws) {
           console.log(`[SUCCESS] Auto-Discovered Active Model: ${bestModel}`);
           ws.send(`[SYS] Locked to active model: ${bestModel}`);
 
-          // 2. Fire the real payload using that exact found model
+          // 2. Fire the real payload using user's EXACT typed command!
+          console.log(`[AI] Generating real-time logic for: ${data}`);
           const postData = JSON.stringify({
-            contents: [{ parts: [{ text: "Briefly in 3 short plain text bullet points output a critical risk analysis for Global Economy. No markdown." }] }]
+            contents: [{ parts: [{ text: `Briefly output exactly 3 short bullet points regarding this prompt: "${data}". Plain text only, no formatting.` }] }]
           });
 
           const options = {
