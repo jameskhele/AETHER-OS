@@ -46,7 +46,13 @@ wss.on('connection', function connection(ws) {
             return new Promise((resolve) => {
               ws.send(`[DEPLOYING] Directing current stream to ${agent.name}...`);
               const postData = JSON.stringify({
-                contents: [{ parts: [{ text: `${agent.role} "${data}". Brief one-sentence reply.` }] }]
+                contents: [{ parts: [{ text: `${agent.role} "${data}". Brief one-sentence reply.` }] }],
+                safetySettings: [
+                  { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                  { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                  { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                  { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                ]
               });
               const options = {
                 hostname: 'generativelanguage.googleapis.com',
@@ -60,10 +66,15 @@ wss.on('connection', function connection(ws) {
                 res2.on('end', () => {
                   try {
                     const j = JSON.parse(r);
+                    if (j.error) throw new Error(j.error.message);
                     const txt = j.candidates[0].content.parts[0].text.replace(/\n/g, ' ').trim();
                     ws.send(`[${agent.name}] ${agent.prefix} ${txt}`);
                     resolve();
-                  } catch (err) { ws.send(`[${agent.name}] Processing lag...`); resolve(); }
+                  } catch (err) { 
+                    console.log(`[AGENT FAILED] Raw Body: ${r}`);
+                    ws.send(`[${agent.name}] Neural Limit Triggered.`); 
+                    resolve(); 
+                  }
                 });
               });
               req.write(postData); req.end();
