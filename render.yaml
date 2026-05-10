@@ -1,0 +1,16 @@
+services:
+  # 📡 THE API GATEWAY (Node.js WebSocket Server)
+  - type: web
+    name: aether-gateway
+    env: node
+    plan: free
+    buildCommand: "pnpm install && pnpm --filter @aether/database run db:generate"
+    startCommand: "node services/api-gateway/server.js"
+    envVars:
+      - key: NODE_VERSION
+        value: 20.0.0
+      - key: DATABASE_URL
+        sync: false # 🔒 To be injected from Supabase live postgres URL
+      - key: PORT
+        value: 8000
+    healthCheckPath: / # Assumes standard root ping success or just live port
