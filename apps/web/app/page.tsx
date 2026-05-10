@@ -5,20 +5,18 @@ export default function Home() {
   const [logs, setLogs] = useState<string[]>([]);
   const [connected, setConnected] = useState(false);
   const [prompt, setPrompt] = useState('');
+  const [score, setScore] = useState(0); // The ultimate rating metric!
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     const speakText = (t: string) => {
       if (!('speechSynthesis' in window)) return;
-      // Clean out the bracketed names so it sounds natural!
-      let clean = t.replace(/\[.*?\]/g, '').replace(/🔍|💼|⚠️|>>>|---/g, '').trim();
+      let clean = t.replace(/\[.*?\]/g, '').replace(/🔍|💼|⚠️|👑|>>>|---/g, '').trim();
       if (clean.length < 3) return;
-
-      window.speechSynthesis.cancel(); // Cut off prev speech for real-time pace!
-      const utterance = new SpeechSynthesisUtterance(clean);
-      utterance.rate = 1.05; // Crisp, rapid delivery
-      utterance.pitch = 0.95; // Slightly futuristic deeper resonance
-      window.speechSynthesis.speak(utterance);
+      window.speechSynthesis.cancel(); 
+      const u = new SpeechSynthesisUtterance(clean);
+      u.rate = 1.05; u.pitch = 0.95;
+      window.speechSynthesis.speak(u);
     };
 
     const socket = new WebSocket('ws://localhost:8000/ws/stream');
@@ -31,20 +29,27 @@ export default function Home() {
     };
 
     socket.onmessage = (e) => {
-      setLogs(p => [...p, `[SYSTEM] ${e.data}`]);
-      // Trigger immediate narrative playback of agent logic!
-      if (e.data.includes(']') && !e.data.includes('DEPLOYING') && !e.data.includes('Analyzing')) {
-        speakText(e.data);
+      const rawData = e.data as string;
+      setLogs(p => [...p, `[SYSTEM] ${rawData}`]);
+      
+      // Auto-Scan for the magic score delivered by Director!
+      const scoreMatch = rawData.match(/\[SCORE:\s*(\d+)\]/i);
+      if (scoreMatch) {
+        setScore(Number(scoreMatch[1]));
+      }
+
+      if (rawData.includes(']') && !rawData.includes('DEPLOYING') && !rawData.includes('Analyzing')) {
+        speakText(rawData);
       }
     };
-
     return () => socket.close();
   }, []);
 
   const transmit = () => {
     if (socketRef.current && connected && prompt.trim().length > 0) {
+      setScore(0); // Reset score on new query!
       setLogs(p => [...p, `--- MISSION LAUNCH: ${prompt} ---`]);
-      socketRef.current.send(prompt); // Push user text up the wire!
+      socketRef.current.send(prompt);
     }
   };
 
@@ -69,34 +74,57 @@ export default function Home() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '8px', height: '8px', background: connected ? '#10b981' : '#ef4444', borderRadius: '50%', boxShadow: connected ? '0 0 8px #10b981' : 'none' }}></div>
-          <span style={{ letterSpacing: '3px', fontWeight: 'bold', fontSize: '0.9rem', color: '#fff' }}>AETHER//OS v1.0</span>
+          <span style={{ letterSpacing: '3px', fontWeight: 'bold', fontSize: '0.9rem', color: '#fff' }}>AETHER//OS v2.0</span>
         </div>
-        <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{connected ? 'STABLE CHANNEL // GEMINI-DETECT' : 'CONNECTING...'}</span>
+        <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{connected ? 'ENTERPRISE GRADE // AGENTIC ARBITER' : 'CONNECTING...'}</span>
       </div>
 
       {/* MAIN SPLIT LAYOUT */}
       <div style={{ flex: 1, display: 'flex', zIndex: 10, position: 'relative' }}>
         
-        {/* LEFT SIDEBAR: AGENT DIAGNOSTICS */}
-        <div style={{ width: '280px', background: 'rgba(2, 6, 23, 0.6)', borderRight: '1px solid #1e293b', padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <h3 style={{ fontSize: '0.7rem', color: '#64748b', letterSpacing: '2px', margin: '0 0 5px 0' }}>ACTIVE NEURAL NODES</h3>
+        {/* LEFT SIDEBAR */}
+        <div style={{ width: '280px', background: 'rgba(2, 6, 23, 0.6)', borderRight: '1px solid #1e293b', padding: '20px', display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{ fontSize: '0.7rem', color: '#64748b', letterSpacing: '2px', margin: '0 0 15px 0' }}>ACTIVE NEURAL NODES</h3>
           
-          {[
-            { n: 'RESEARCHER', c: '#3b82f6', i: '🔍 SCANNING' },
-            { n: 'STRATEGIST', c: '#eab308', i: '📈 TRADING' },
-            { n: 'RISK OFFICER', c: '#ef4444', i: '🛡️ SHIELDING' }
-          ].map(a => (
-            <div key={a.n} style={{ border: '1px solid #1e293b', padding: '12px', background: 'rgba(0,0,0,0.3)', borderRadius: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <span style={{ color: a.c, fontSize: '0.75rem', fontWeight: 'bold' }}>{a.n}</span>
-                <span style={{ fontSize: '0.6rem', color: '#10b981' }}>ONLINE</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '30px' }}>
+            {[
+              { n: 'RESEARCHER', c: '#3b82f6', i: '🔍 SCAN' },
+              { n: 'STRATEGIST', c: '#eab308', i: '💼 PROFIT' },
+              { n: 'RISK OFFICER', c: '#ef4444', i: '⚠️ SHIELD' },
+              { n: 'DIRECTOR', c: '#c084fc', i: '👑 COMMAND' }
+            ].map(a => (
+              <div key={a.n} style={{ border: '1px solid #1e293b', padding: '10px', background: 'rgba(0,0,0,0.3)', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: a.c, fontSize: '0.7rem', fontWeight: 'bold' }}>{a.n}</span>
+                  <span style={{ fontSize: '0.6rem', color: '#94a3b8' }}>{a.i}</span>
+                </div>
               </div>
-              <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{a.i}</div>
+            ))}
+          </div>
+
+          {/* BRAND NEW SCORE VISUALIZER SECTION */}
+          <div style={{ flex: 1, borderTop: '1px dashed #334155', paddingTop: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
+            <h4 style={{ fontSize: '0.65rem', color: '#3b82f6', letterSpacing: '2px', marginBottom: '10px' }}>PROBABILITY MATRIX</h4>
+            <div style={{ 
+              fontSize: '3.5rem', fontWeight: '900', color: score > 70 ? '#10b981' : (score > 40 ? '#f59e0b' : '#ef4444'),
+              textShadow: `0 0 30px ${score > 70 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}>
+              {score}<span style={{ fontSize: '1.2rem', opacity: 0.5 }}>%</span>
             </div>
-          ))}
+            <div style={{ fontSize: '0.6rem', color: '#64748b', marginBottom: '15px' }}>SUCCESS CONFLUENCE</div>
+            
+            {/* Animated Glowing Fill Bar */}
+            <div style={{ height: '6px', width: '100%', background: '#0f172a', borderRadius: '10px', overflow: 'hidden', border: '1px solid #1e293b' }}>
+              <div style={{ 
+                height: '100%', width: `${score}%`, 
+                background: `linear-gradient(90deg, #3b82f6, ${score > 60 ? '#10b981' : '#ef4444'})`, 
+                transition: 'width 1.5s ease-out', boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)'
+              }}></div>
+            </div>
+          </div>
         </div>
 
-        {/* CENTER: MAIN COMMAND THEATRE */}
+        {/* CENTER MAIN COMMAND AREA */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '30px', gap: '20px' }}>
           
           {/* INPUT AREA */}

@@ -33,19 +33,20 @@ wss.on('connection', function connection(ws) {
           console.log(`[SYS] Model Identified: ${bestModel}`);
           ws.send(`[SYS] Neural path secured to ${bestModel}`);
 
-          // Define the 3 Specialized Brain Persona Waves!
+          // Define the 4 Brain Persona Waves, including the Final Boss (Director)!
           const agents = [
-            { name: "RESEARCHER", prefix: "🔍", role: "Act as a genius analyst. Provide one critical global data point about this: " },
-            { name: "STRATEGIST", prefix: "💼", role: "Act as a greedy Wall Street Shark investor. Give one high-profit strategy for this: " },
-            { name: "RISK_OFFICER", prefix: "⚠️", role: "Act as a paranoid security officer. Give one dangerous warning regarding this: " }
+            { name: "RESEARCHER", prefix: "🔍", role: "Act as analyst. Give 1 global data point. Include 1 relevant emoji: " },
+            { name: "STRATEGIST", prefix: "💼", role: "Act as greedy investor. Give 1 high-profit step. Include 1 money emoji: " },
+            { name: "RISK_OFFICER", prefix: "⚠️", role: "Act as security head. Give 1 dire warning. Include 1 danger emoji: " },
+            { name: "DIRECTOR", prefix: "👑", role: "Act as Chief Director. Combine the logic into one summary sentence with emojis, and AT THE VERY END of the line you MUST include exactly '[SCORE: XX]' replacing XX with a calculated number from 0 to 100 representing success chance of this prompt: " }
           ];
 
           // Function to prompt Google for one single agent logic wave
           const runAgent = async (agent) => {
             return new Promise((resolve) => {
-              ws.send(`[DEPLOYING] Waking up the ${agent.name}...`);
+              ws.send(`[DEPLOYING] Directing current stream to ${agent.name}...`);
               const postData = JSON.stringify({
-                contents: [{ parts: [{ text: `${agent.role} "${data}". Output EXACTLY one brief sentence. Plain text.` }] }]
+                contents: [{ parts: [{ text: `${agent.role} "${data}". Brief one-sentence reply.` }] }]
               });
               const options = {
                 hostname: 'generativelanguage.googleapis.com',
@@ -62,21 +63,21 @@ wss.on('connection', function connection(ws) {
                     const txt = j.candidates[0].content.parts[0].text.replace(/\n/g, ' ').trim();
                     ws.send(`[${agent.name}] ${agent.prefix} ${txt}`);
                     resolve();
-                  } catch (err) { ws.send(`[${agent.name}] Logic Fault.`); resolve(); }
+                  } catch (err) { ws.send(`[${agent.name}] Processing lag...`); resolve(); }
                 });
               });
               req.write(postData); req.end();
             });
           };
 
-          // Execute the Sequence Sequentially (Wait for each agent to finish their thought!)
+          // Execute the full 4-person debate cycle
           (async () => {
             for (const agent of agents) {
               await runAgent(agent);
-              await new Promise(r => setTimeout(r, 800)); // Brief pause for dramatic dashboard effect!
+              await new Promise(r => setTimeout(r, 900)); // Beautiful paced dashboard effect
             }
-            ws.send(">>> FULL AGENT DEBATE COMPLETE <<<");
-            console.log("[SERVER] Multi-Agent cycle finished.");
+            ws.send(">>> ALL NODES SYNCHRONIZED. CONSULT SCORE MATRIX. <<<");
+            console.log("[CYBER] Complete operational sequence satisfied.");
           })();
 
         } catch (e) {
