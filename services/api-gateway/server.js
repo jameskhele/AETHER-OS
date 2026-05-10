@@ -23,18 +23,24 @@ wss.on('connection', function connection(ws) {
       res.on('end', () => {
         try {
           const j = JSON.parse(body);
-          // PRIORITIZE 1.5-FLASH WHICH HAS A HUGE QUOTA OF 1500 RUNS PER DAY!
-          let found = j.models.find(m => 
-            m.supportedGenerationMethods.includes('generateContent') && 
-            m.name.includes('gemini-1.5-flash')
-          );
+          // EXPLICIT WATERFALL OF HIGH-QUOTA STABLE BRAINS!
+          const targetOrder = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
+          let found = null;
+
+          for (const target of targetOrder) {
+            found = j.models.find(m => 
+              m.supportedGenerationMethods.includes('generateContent') && 
+              m.name.includes(target)
+            );
+            if (found) break; // Exit as soon as a robust brain is secured!
+          }
           
-          // FALLBACK ONLY IF 1.5 FLASH IS MISSING
+          // ABSOLUTE LAST RESORT FALLBACK
           if (!found) {
-            found = j.models.find(m => m.supportedGenerationMethods.includes('generateContent') && !m.name.includes('2.5'));
+            found = j.models.find(m => m.supportedGenerationMethods.includes('generateContent') && !m.name.includes('2.'));
           }
 
-          if (!found) throw new Error("All active stable models exhausted.");
+          if (!found) throw new Error("Google Quota Completely Exhausted on all known robust pipelines.");
           
           const bestModel = found.name;
           console.log(`[SYS] Model Identified: ${bestModel}`);
