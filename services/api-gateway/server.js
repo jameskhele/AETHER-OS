@@ -6,7 +6,7 @@ const wss = new WebSocketServer({ port: 8000 });
 // Initialize Real Google Brain securely
 const model = new ChatGoogleGenerativeAI({
   apiKey: "AIzaSyB9HYFnFeHNvzdQYSuQm1m6_O2PlO46WjE",
-  model: "gemini-pro",
+  model: "models/gemini-pro",
   maxOutputTokens: 200,
 });
 
