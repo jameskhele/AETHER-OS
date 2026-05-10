@@ -1,4 +1,7 @@
 # AETHER // OS v2.5
+
+![AETHER OS Live Dashboard](./docs/aether-dashboard.png)
+
 ### 🚀 Sovereign AI Operations Hub & Distributed Agent Ecosystem
 
 ![AETHER OS Architecture](https://img.shields.io/badge/Stack-Next.js_15_%7C_Prisma_%7C_TurboRepo_%7C_WebSockets-blueviolet?style=for-the-badge)
