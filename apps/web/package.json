@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aether/types": "workspace:*",
     "react": "rc",
     "react-dom": "rc",
     "next": "15.0.3",

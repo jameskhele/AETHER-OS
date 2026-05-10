@@ -1,0 +1,14 @@
+{
+  "name": "@aether/gateway",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0",
+    "@aether/types": "workspace:*"
+  },
+  "private": true
+}
