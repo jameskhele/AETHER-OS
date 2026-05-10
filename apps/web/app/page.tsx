@@ -6,7 +6,13 @@ export default function Home() {
   const [connected, setConnected] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [score, setScore] = useState(0);
-  const [activeAgent, setActiveAgent] = useState(''); // For the pulsing effect!
+  const [activeAgent, setActiveAgent] = useState('');
+  
+  // Live Telemetry Bar States!
+  const [dataVal, setDataVal] = useState(5);
+  const [greedVal, setGreedVal] = useState(5);
+  const [dangerVal, setDangerVal] = useState(5);
+
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -33,10 +39,19 @@ export default function Home() {
       const rawData = e.data as string;
       setLogs(p => [...p, `[SYSTEM] ${rawData}`]);
       
-      // Detection for Active Glowing Agent!
-      if (rawData.includes('[RESEARCHER]')) setActiveAgent('RESEARCHER');
-      if (rawData.includes('[STRATEGIST]')) setActiveAgent('STRATEGIST');
-      if (rawData.includes('[RISK_OFFICER]')) setActiveAgent('RISK_OFFICER');
+      // Real-Time Neural Chart Response Triggers!
+      if (rawData.includes('[RESEARCHER]')) {
+        setActiveAgent('RESEARCHER');
+        setDataVal(Math.floor(Math.random() * 25) + 70); // Shoot up between 70-95!
+      }
+      if (rawData.includes('[STRATEGIST]')) {
+        setActiveAgent('STRATEGIST');
+        setGreedVal(Math.floor(Math.random() * 20) + 80); // High greed!
+      }
+      if (rawData.includes('[RISK_OFFICER]')) {
+        setActiveAgent('RISK_OFFICER');
+        setDangerVal(Math.floor(Math.random() * 40) + 50); // Intense danger scale!
+      }
       if (rawData.includes('[DIRECTOR]')) setActiveAgent('DIRECTOR');
 
       const scoreMatch = rawData.match(/\[SCORE:\s*(\d+)\]/i);
@@ -55,6 +70,8 @@ export default function Home() {
     if (socketRef.current && connected && prompt.trim().length > 0) {
       setScore(0);
       setActiveAgent('');
+      // Reset the telemetry bars to zero for fresh animation!
+      setDataVal(5); setGreedVal(5); setDangerVal(5);
       setLogs(p => [...p, `--- MISSION LAUNCH: ${prompt} ---`]);
       socketRef.current.send(prompt);
     }
@@ -219,14 +236,14 @@ export default function Home() {
             <h3 style={{ fontSize: '0.65rem', color: '#64748b', letterSpacing: '2px', marginBottom: '15px' }}>SENTIMENT DENSITY</h3>
             <div style={{ display: 'flex', justifyContent: 'space-between', height: '120px', alignItems: 'flex-end', padding: '0 10px', borderBottom: '1px solid #334155' }}>
               {[
-                { label: 'DATA', val: score > 0 ? 85 : 5, color: '#3b82f6' },
-                { label: 'GREED', val: score > 0 ? 92 : 5, color: '#eab308' },
-                { label: 'DANGER', val: score > 0 ? (100 - score) : 5, color: '#ef4444' }
+                { label: 'DATA', val: dataVal, color: '#3b82f6' },
+                { label: 'GREED', val: greedVal, color: '#eab308' },
+                { label: 'DANGER', val: dangerVal, color: '#ef4444' }
               ].map(b => (
                 <div key={b.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '30%' }}>
                   <div style={{ 
                     width: '100%', height: `${b.val}%`, background: b.color, 
-                    transition: 'height 1.5s ease', boxShadow: `0 0 15px ${b.color}55`,
+                    transition: 'height 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)', boxShadow: `0 0 15px ${b.color}55`,
                     borderRadius: '2px 2px 0 0'
                   }} />
                   <div style={{ fontSize: '0.55rem', color: '#94a3b8', marginTop: '6px' }}>{b.label}</div>
