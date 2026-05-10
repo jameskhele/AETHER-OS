@@ -8,16 +8,35 @@ export default function Home() {
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
+    const speakText = (t: string) => {
+      if (!('speechSynthesis' in window)) return;
+      // Clean out the bracketed names so it sounds natural!
+      let clean = t.replace(/\[.*?\]/g, '').replace(/🔍|💼|⚠️|>>>|---/g, '').trim();
+      if (clean.length < 3) return;
+
+      window.speechSynthesis.cancel(); // Cut off prev speech for real-time pace!
+      const utterance = new SpeechSynthesisUtterance(clean);
+      utterance.rate = 1.05; // Crisp, rapid delivery
+      utterance.pitch = 0.95; // Slightly futuristic deeper resonance
+      window.speechSynthesis.speak(utterance);
+    };
+
     const socket = new WebSocket('ws://localhost:8000/ws/stream');
     socketRef.current = socket;
 
     socket.onopen = () => {
       setConnected(true);
       setLogs(p => [...p, "[NETWORK] Secure Link Established."]);
+      speakText("Neural Connection Established.");
     };
 
-    socket.onmessage = (e) => setLogs(p => [...p, `[SYSTEM] ${e.data}`]);
-    socket.onerror = () => setLogs(p => [...p, "[NETWORK] ERROR: Run Backend Server."]);
+    socket.onmessage = (e) => {
+      setLogs(p => [...p, `[SYSTEM] ${e.data}`]);
+      // Trigger immediate narrative playback of agent logic!
+      if (e.data.includes(']') && !e.data.includes('DEPLOYING') && !e.data.includes('Analyzing')) {
+        speakText(e.data);
+      }
+    };
 
     return () => socket.close();
   }, []);
