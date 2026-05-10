@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "ws": "^8.18.0",
-    "@aether/types": "workspace:*"
+    "@aether/types": "workspace:*",
+    "@aether/database": "workspace:*"
   },
   "private": true
 }

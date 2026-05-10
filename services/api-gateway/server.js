@@ -1,11 +1,26 @@
 const { WebSocketServer } = require('ws');
 const https = require('https');
+const { PrismaClient } = require('@prisma/client');
+
+// 🏛️ Establish Centralized SQL Connection
+const prisma = new PrismaClient();
 
 const wss = new WebSocketServer({ port: 8000 });
 const API_KEY = "AIzaSyB9HYFnFeHNvzdQYSuQm1m6_O2PlO46WjE";
 
+// HEALING PROTOCOL: Automatically ensures a functional multi-tenant sandbox exists!
+async function resolveActiveTenant() {
+  let org = await prisma.organization.findFirst();
+  if (!org) org = await prisma.organization.create({ data: { name: "JK GLOBAL ENTERPRISE", slug: "jk-global" } });
+  
+  let user = await prisma.user.findFirst({ where: { organizationId: org.id } });
+  if (!user) user = await prisma.user.create({ data: { email: "james@jk-global.dev", name: "James Architect", organizationId: org.id, role: "OWNER" } });
+  
+  return { orgId: org.id, userId: user.id };
+}
+
 console.log("\n💠 AETHER OS COMMAND CORE IS LIVE");
-console.log("🚀 DYNAMIC GOOGLE AI DISCOVERY ACTIVE");
+console.log("💾 SQL TRANSACTIONAL PIPELINE LINKED");
 console.log("⚡ Awaiting Ingress Signals...\n");
 
 wss.on('connection', function connection(ws) {
@@ -16,8 +31,30 @@ wss.on('connection', function connection(ws) {
     timestamp: new Date().toISOString() 
   }));
 
-  ws.on('message', function message(data) {
-    console.log(`[RX] Query Detected. Self-Discovering best model...`);
+  ws.on('message', async function message(data) {
+    console.log(`[RX] Query Detected. Persisting to SQL Vault...`);
+    
+    // 1. Instantiate SQL Context
+    const tenant = await resolveActiveTenant();
+    const mission = await prisma.mission.create({
+      data: {
+        prompt: data.toString(),
+        organizationId: tenant.orgId,
+        creatorId: tenant.userId,
+        status: "IN_PROGRESS"
+      }
+    });
+
+    // Helper to dynamically insert telemetry streams!
+    const persistLog = async (type, sender, content) => {
+      try {
+        await prisma.logEntry.create({
+          data: { missionId: mission.id, type, sender, content: String(content) }
+        });
+      } catch (e) { console.error("DB Write Failed", e.message); }
+    };
+
+    await persistLog("SYSTEM", "ORCHESTRATOR", "MISSION TRANSACTION INITIATED");
     ws.send(JSON.stringify({ 
       type: 'SYSTEM', 
       sender: 'ORCHESTRATOR', 
@@ -29,13 +66,14 @@ wss.on('connection', function connection(ws) {
     https.get(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`, (res) => {
       let body = '';
       res.on('data', (d) => body += d);
-      res.on('end', () => {
+      res.on('end', async () => {
         try {
           const j = JSON.parse(body);
           
           // 1. EVENT: INVENTORY MANIFEST
           const allModels = j.models ? j.models.map(m => m.name.replace('models/','')).join(', ') : 'None';
           ws.send(JSON.stringify({ type: 'INVENTORY', content: allModels, timestamp: new Date().toISOString() }));
+          await persistLog('INVENTORY', null, allModels);
 
           const targetOrder = [
             'gemini-flash-lite-latest', 
@@ -61,6 +99,7 @@ wss.on('connection', function connection(ws) {
 
           // 2. EVENT: SYSTEM LINK
           ws.send(JSON.stringify({ type: 'SYSTEM', sender: 'SYS', content: `Neural path secured to ${bestModel}`, timestamp: new Date().toISOString() }));
+          await persistLog('SYSTEM', 'SYS', `Neural path secured to ${bestModel}`);
 
           const agents = [
             { name: "RESEARCHER", prefix: "🔍", role: "Act as analyst. Give 1 global data point. Include 1 relevant emoji: " },
@@ -70,9 +109,10 @@ wss.on('connection', function connection(ws) {
           ];
 
           const runAgent = async (agent) => {
-            return new Promise((resolve) => {
+            return new Promise(async (resolve) => {
               // 3. EVENT: DEPLOY NOTIFICATION
               ws.send(JSON.stringify({ type: 'DEPLOY', content: `Directing stream to ${agent.name}...`, timestamp: new Date().toISOString() }));
+              await persistLog('DEPLOY', agent.name, `Directing stream to ${agent.name}...`);
               
               const postData = JSON.stringify({
                 contents: [{ parts: [{ text: `${agent.role} "${data}". Brief one-sentence reply.` }] }],
@@ -92,7 +132,7 @@ wss.on('connection', function connection(ws) {
               const req = https.request(options, (res2) => {
                 let r = '';
                 res2.on('data', (d) => r += d);
-                res2.on('end', () => {
+                res2.on('end', async () => {
                   try {
                     const responseJson = JSON.parse(r);
                     if (responseJson.error) throw new Error(responseJson.error.message);
@@ -105,6 +145,7 @@ wss.on('connection', function connection(ws) {
                       content: `${agent.prefix} ${txt}`,
                       timestamp: new Date().toISOString()
                     }));
+                    await persistLog('ANALYSIS', agent.name, `${agent.prefix} ${txt}`);
                     resolve();
                   } catch (err) { 
                     console.log(`[AGENT FAILED] Raw Body: ${r}`);
@@ -114,6 +155,7 @@ wss.on('connection', function connection(ws) {
                       content: `Upstream Issue: ${r.substring(0, 60)}`,
                       timestamp: new Date().toISOString()
                     })); 
+                    await persistLog('ERROR', agent.name, `Exception: ${r.substring(0, 60)}`);
                     resolve(); 
                   }
                 });
@@ -129,7 +171,15 @@ wss.on('connection', function connection(ws) {
             }
             // 5. EVENT: COMPLETION
             ws.send(JSON.stringify({ type: 'SYSTEM', content: ">>> ALL NODES SYNCHRONIZED. CONSULT SCORE MATRIX. <<<", timestamp: new Date().toISOString() }));
-            console.log("[CYBER] Complete operational sequence satisfied.");
+            await persistLog('SYSTEM', null, "ALL NODES SYNCHRONIZED.");
+            
+            // Seal the Mission record with definitive Finality!
+            await prisma.mission.update({
+              where: { id: mission.id },
+              data: { status: "COMPLETED", completedAt: new Date() }
+            });
+            
+            console.log(`[CYBER] Mission ${mission.id} successfully persisted to SQL.`);
           })();
 
         } catch (e) {
