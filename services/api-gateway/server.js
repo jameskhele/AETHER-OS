@@ -29,44 +29,55 @@ wss.on('connection', function connection(ws) {
           
           if (!found) throw new Error("No Gemini found.");
           
-          const bestModel = found.name; // e.g. "models/gemini-1.5-flash"
-          console.log(`[SUCCESS] Auto-Discovered Active Model: ${bestModel}`);
-          ws.send(`[SYS] Locked to active model: ${bestModel}`);
+          const bestModel = found.name;
+          console.log(`[SYS] Model Identified: ${bestModel}`);
+          ws.send(`[SYS] Neural path secured to ${bestModel}`);
 
-          // 2. Fire the real payload using user's EXACT typed command!
-          console.log(`[AI] Generating real-time logic for: ${data}`);
-          const postData = JSON.stringify({
-            contents: [{ parts: [{ text: `Briefly output exactly 3 short bullet points regarding this prompt: "${data}". Plain text only, no formatting.` }] }]
-          });
+          // Define the 3 Specialized Brain Persona Waves!
+          const agents = [
+            { name: "RESEARCHER", prefix: "🔍", role: "Act as a genius analyst. Provide one critical global data point about this: " },
+            { name: "STRATEGIST", prefix: "💼", role: "Act as a greedy Wall Street Shark investor. Give one high-profit strategy for this: " },
+            { name: "RISK_OFFICER", prefix: "⚠️", role: "Act as a paranoid security officer. Give one dangerous warning regarding this: " }
+          ];
 
-          const options = {
-            hostname: 'generativelanguage.googleapis.com',
-            path: `/v1beta/${bestModel}:generateContent?key=${API_KEY}`,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+          // Function to prompt Google for one single agent logic wave
+          const runAgent = async (agent) => {
+            return new Promise((resolve) => {
+              ws.send(`[DEPLOYING] Waking up the ${agent.name}...`);
+              const postData = JSON.stringify({
+                contents: [{ parts: [{ text: `${agent.role} "${data}". Output EXACTLY one brief sentence. Plain text.` }] }]
+              });
+              const options = {
+                hostname: 'generativelanguage.googleapis.com',
+                path: `/v1beta/${bestModel}:generateContent?key=${API_KEY}`,
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+              };
+              const req = https.request(options, (res2) => {
+                let r = '';
+                res2.on('data', (d) => r += d);
+                res2.on('end', () => {
+                  try {
+                    const j = JSON.parse(r);
+                    const txt = j.candidates[0].content.parts[0].text.replace(/\n/g, ' ').trim();
+                    ws.send(`[${agent.name}] ${agent.prefix} ${txt}`);
+                    resolve();
+                  } catch (err) { ws.send(`[${agent.name}] Logic Fault.`); resolve(); }
+                });
+              });
+              req.write(postData); req.end();
+            });
           };
 
-          const req = https.request(options, (res2) => {
-            let resp = '';
-            res2.on('data', (d) => resp += d);
-            res2.on('end', () => {
-              try {
-                const final = JSON.parse(resp);
-                const txt = final.candidates[0].content.parts[0].text;
-                const lines = txt.split('\n').filter(l => l.trim().length > 0);
-                ws.send(`[RESEARCH] ${lines[0] || 'Ready.'}`);
-                setTimeout(() => ws.send(`[STRATEGY] ${lines[1] || 'Armed.'}`), 500);
-                setTimeout(() => ws.send(`[RISK] ${lines[2] || 'Final.'}`), 1000);
-                setTimeout(() => ws.send(">>> LIVE INTELLIGENCE SECURED. <<<"), 1500);
-                console.log("[DONE] Response Served.");
-              } catch (ex) {
-                ws.send("[ERROR] Brain failed to generate.");
-                console.log("Final error:", resp);
-              }
-            });
-          });
-          req.write(postData);
-          req.end();
+          // Execute the Sequence Sequentially (Wait for each agent to finish their thought!)
+          (async () => {
+            for (const agent of agents) {
+              await runAgent(agent);
+              await new Promise(r => setTimeout(r, 800)); // Brief pause for dramatic dashboard effect!
+            }
+            ws.send(">>> FULL AGENT DEBATE COMPLETE <<<");
+            console.log("[SERVER] Multi-Agent cycle finished.");
+          })();
 
         } catch (e) {
           console.log("Discovery Error:", body);

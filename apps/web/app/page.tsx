@@ -31,80 +31,115 @@ export default function Home() {
 
   return (
     <div style={{
-      width: '100vw', height: '100vh', background: '#050505', 
-      fontFamily: 'monospace', color: '#fff', display: 'flex', 
-      alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-      position: 'relative'
+      width: '100vw', height: '100vh', background: '#030305', 
+      fontFamily: 'monospace', color: '#e2e8f0', display: 'flex', flexDirection: 'column',
+      overflow: 'hidden', position: 'relative'
     }}>
       
-      {/* Ultra-Stable Animated Neon Grid Background */}
+      {/* BACKGROUND ANIMATION */}
       <div style={{
         position: 'absolute', width: '200%', height: '200%',
-        backgroundImage: 'linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)',
-        backgroundSize: '40px 40px',
-        transform: 'perspective(500px) rotateX(60deg)',
-        animation: 'moveGrid 20s linear infinite',
-        zIndex: 0, top: '-50%'
+        backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.15) 0%, transparent 50%)',
+        animation: 'pulse 10s ease-in-out infinite', zIndex: 0, top: '-50%', left: '-50%'
       }}></div>
 
-      <div style={{
-        position: 'relative', zIndex: 10, background: 'rgba(10, 10, 15, 0.85)',
-        border: `1px solid ${connected ? '#22c55e' : '#ef4444'}`,
-        borderRadius: '8px', padding: '40px', width: '450px',
-        boxShadow: `0 0 60px rgba(${connected ? '34, 197, 94' : '239, 68, 68'}, 0.15)`,
-        backdropFilter: 'blur(12px)', textAlign: 'center'
+      {/* TOP BAR */}
+      <div style={{ 
+        height: '50px', background: 'rgba(15, 23, 42, 0.9)', borderBottom: '1px solid #1e293b', 
+        zIndex: 20, display: 'flex', alignItems: 'center', padding: '0 25px', justifyContent: 'space-between'
       }}>
-        <h1 style={{ margin: 0, letterSpacing: '12px', fontSize: '2.5rem', textShadow: '0 0 10px rgba(255,255,255,0.2)' }}>AETHER</h1>
-        <p style={{ color: connected ? '#4ade80' : '#f87171', fontSize: '0.7rem', letterSpacing: '3px', margin: '10px 0 20px 0', opacity: 0.8 }}>
-          {connected ? '● CORE ONLINE' : '● GATEWAY OFFLINE'}
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '8px', height: '8px', background: connected ? '#10b981' : '#ef4444', borderRadius: '50%', boxShadow: connected ? '0 0 8px #10b981' : 'none' }}></div>
+          <span style={{ letterSpacing: '3px', fontWeight: 'bold', fontSize: '0.9rem', color: '#fff' }}>AETHER//OS v1.0</span>
+        </div>
+        <span style={{ fontSize: '0.7rem', color: '#64748b' }}>{connected ? 'STABLE CHANNEL // GEMINI-DETECT' : 'CONNECTING...'}</span>
+      </div>
 
-        {/* New Dynamic Input Field */}
-        <input 
-          type="text"
-          placeholder="TYPE MISSION OBJECTIVE..."
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          disabled={!connected}
-          style={{
-            width: '100%', padding: '12px', background: 'rgba(0,0,0,0.5)', 
-            border: '1px solid #1e293b', color: '#3b82f6', textAlign: 'center',
-            fontSize: '0.85rem', letterSpacing: '1px', outline: 'none',
-            marginBottom: '15px', transition: 'border-color 0.3s',
-            boxSizing: 'border-box'
-          }}
-          onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-          onBlur={(e) => e.target.style.borderColor = '#1e293b'}
-        />
-
-        <div style={{ 
-          background: '#000', border: '1px solid #1e293b', padding: '15px', height: '120px', 
-          textAlign: 'left', fontSize: '0.75rem', overflowY: 'auto', marginBottom: '20px', color: '#94a3b8'
-        }}>
-          {logs.slice(-10).map((l, i) => (
-            <div key={i} style={{ marginBottom: '6px', color: l.includes('>>>') ? '#22c55e' : '#94a3b8' }}>{l}</div>
+      {/* MAIN SPLIT LAYOUT */}
+      <div style={{ flex: 1, display: 'flex', zIndex: 10, position: 'relative' }}>
+        
+        {/* LEFT SIDEBAR: AGENT DIAGNOSTICS */}
+        <div style={{ width: '280px', background: 'rgba(2, 6, 23, 0.6)', borderRight: '1px solid #1e293b', padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <h3 style={{ fontSize: '0.7rem', color: '#64748b', letterSpacing: '2px', margin: '0 0 5px 0' }}>ACTIVE NEURAL NODES</h3>
+          
+          {[
+            { n: 'RESEARCHER', c: '#3b82f6', i: '🔍 SCANNING' },
+            { n: 'STRATEGIST', c: '#eab308', i: '📈 TRADING' },
+            { n: 'RISK OFFICER', c: '#ef4444', i: '🛡️ SHIELDING' }
+          ].map(a => (
+            <div key={a.n} style={{ border: '1px solid #1e293b', padding: '12px', background: 'rgba(0,0,0,0.3)', borderRadius: '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <span style={{ color: a.c, fontSize: '0.75rem', fontWeight: 'bold' }}>{a.n}</span>
+                <span style={{ fontSize: '0.6rem', color: '#10b981' }}>ONLINE</span>
+              </div>
+              <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{a.i}</div>
+            </div>
           ))}
         </div>
 
-        <button 
-          onClick={transmit}
-          disabled={!connected || prompt.trim().length === 0}
-          style={{
-            background: connected && prompt.length > 0 ? 'rgba(34, 197, 94, 0.1)' : 'transparent', 
-            border: `1px solid ${connected && prompt.length > 0 ? '#22c55e' : '#475569'}`,
-            color: connected && prompt.length > 0 ? '#22c55e' : '#64748b',
-            padding: '15px 30px', width: '100%', cursor: connected && prompt.length > 0 ? 'pointer' : 'not-allowed',
-            fontWeight: 'bold', letterSpacing: '2px', transition: 'all 0.2s'
+        {/* CENTER: MAIN COMMAND THEATRE */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '30px', gap: '20px' }}>
+          
+          {/* INPUT AREA */}
+          <div style={{ background: 'rgba(15, 23, 42, 0.4)', padding: '20px', border: '1px solid #1e293b', borderRadius: '6px' }}>
+            <div style={{ fontSize: '0.7rem', color: '#3b82f6', marginBottom: '10px', letterSpacing: '2px' }}>COMMAND INPUT LINE</div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input 
+                type="text"
+                placeholder="TRANSMIT OPERATIONAL DIRECTIVE..."
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                disabled={!connected}
+                style={{
+                  flex: 1, padding: '15px', background: '#000', border: '1px solid #334155',
+                  color: '#fff', fontFamily: 'monospace', fontSize: '0.9rem', outline: 'none'
+                }}
+              />
+              <button 
+                onClick={transmit}
+                disabled={!connected || prompt.trim().length === 0}
+                style={{
+                  background: connected && prompt.length > 0 ? '#1e40af' : '#1e293b',
+                  color: '#fff', border: 'none', padding: '0 30px', cursor: 'pointer',
+                  fontWeight: 'bold', letterSpacing: '1px', transition: 'all 0.2s'
+                }}>
+                DEPLOY
+              </button>
+            </div>
+          </div>
+
+          {/* OUTPUT LOGS CONSOLE */}
+          <div style={{ 
+            flex: 1, background: '#000', border: '1px solid #1e293b', padding: '20px', 
+            overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.8)'
           }}>
-          {connected ? (prompt.length > 0 ? 'EXECUTE MISSION' : 'ENTER OBJECTIVE') : 'LOCKED // SYNC REQ'}
-        </button>
+            {logs.map((l, i) => {
+              let color = '#94a3b8';
+              if (l.includes('[RESEARCHER]')) color = '#60a5fa';
+              if (l.includes('[STRATEGIST]')) color = '#facc15';
+              if (l.includes('[RISK_OFFICER]')) color = '#f87171';
+              if (l.includes('>>>')) color = '#22c55e';
+              if (l.includes('---')) color = '#c084fc';
+
+              return (
+                <div key={i} style={{ color, fontSize: '0.85rem', borderLeft: `2px solid ${color}`, paddingLeft: '10px' }}>
+                  <span style={{ opacity: 0.5, marginRight: '10px' }}>[{new Date().toLocaleTimeString()}]</span>
+                  {l}
+                </div>
+              );
+            })}
+            <div style={{ height: '1px' }} id="scroll-anchor" />
+          </div>
+
+        </div>
       </div>
 
       <style>{`
-        @keyframes moveGrid {
-          0% { background-position: 0 0; }
-          100% { background-position: 0 40px; }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.1); }
         }
+        input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
       `}</style>
     </div>
   );
