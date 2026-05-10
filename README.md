@@ -6,6 +6,14 @@
 [![Architecture](https://img.shields.io/badge/Architecture-Microservices%20Monorepo-0ea5e9?style=for-the-badge)](https://turbo.build/)
 [![Tech Stack](https://img.shields.io/badge/Next.js%2015%20%7C%20FastAPI%20%7C%20LangGraph-000000?style=for-the-badge)](https://github.com/jameskhele/AETHER-OS)
 
+<div align="center">
+  <br/>
+  <img src="./livetest.gif" width="80%" style="border: 1px solid #3b82f6; border-radius: 8px;" />
+  <br/>
+  <sub><i>Live Demonstration of Real-Time WebSocket Ingress & Orchestration</i></sub>
+  <br/><br/>
+</div>
+
 **AETHER OS** is an enterprise-grade, distributed intelligence hub engineered to simulate autonomous collaborative decision environments. Designed specifically as a high-load, multi-agent command and control platform, it aggregates global data streams and facilitates real-time logical debate between specialized autonomous entities.
 
 > *Think NASA Mission Control meets distributed, hyper-scalable Agentic reasoning.*
