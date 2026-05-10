@@ -1,5 +1,34 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Points, PointMaterial } from '@react-three/drei';
+import * as random from 'maath/random/dist/maath-random.esm';
+
+function ParticleGrid(props: any) {
+  const ref = useRef<any>();
+  const sphere = useMemo(() => random.inSphere(new Float32Array(5000), { radius: 1.5 }), []);
+  
+  useFrame((state, delta) => {
+    if (ref.current) {
+      ref.current.rotation.x -= delta / 10;
+      ref.current.rotation.y -= delta / 15;
+    }
+  });
+
+  return (
+    <group rotation={[0, 0, Math.PI / 4]}>
+      <Points ref={ref} positions={sphere} stride={3} frustumCulled {...props}>
+        <PointMaterial
+          transparent
+          color="#3b82f6"
+          size={0.005}
+          sizeAttenuation={true}
+          depthWrite={false}
+        />
+      </Points>
+    </group>
+  );
+}
 
 export default function Home() {
   const [logs, setLogs] = useState<string[]>([]);
@@ -7,69 +36,65 @@ export default function Home() {
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // Establish immediate link to internal logic gateway
     const socket = new WebSocket('ws://localhost:8000/ws/stream');
     socketRef.current = socket;
 
     socket.onopen = () => {
       setConnected(true);
-      setLogs(p => [...p, "[NETWORK] Kinetic Gateway Found: Connection Established."]);
+      setLogs(p => [...p, "[NETWORK] Connected to Local Gateway."]);
     };
 
-    socket.onmessage = (event) => {
-      setLogs(p => [...p, `[GATEWAY] Payload Detected: ${event.data}`]);
-    };
-
-    socket.onerror = () => {
-      setLogs(p => [...p, "[NETWORK] FATAL: Local API Gateway (Python) Offline on Port 8000."]);
-    };
+    socket.onmessage = (e) => setLogs(p => [...p, `[GATEWAY] > ${e.data}`]);
+    socket.onerror = () => setLogs(p => [...p, "[NETWORK] Gateway Offline. Ready for Cloud Ingress."]);
 
     return () => socket.close();
   }, []);
 
-  const transmitVector = () => {
+  const transmit = () => {
     if (socketRef.current && connected) {
-      setLogs(p => [...p, "[CLIENT] Dispatching Vector Ingress Command..."]);
-      socketRef.current.send("INITIALIZE_SEQUENCE_ALPHA");
+      setLogs(p => [...p, "[SYSTEM] Triggering sequence..."]);
+      socketRef.current.send("INIT");
     }
   };
 
   return (
-    <div style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', 
-      height: '100vh', background: 'radial-gradient(circle at center, #0f172a 0%, #000000 100%)', fontFamily: 'monospace'
-    }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#000', overflow: 'hidden', fontFamily: 'monospace' }}>
       
-      <div style={{
-        border: `1px solid ${connected ? '#22c55e' : '#ef4444'}`, padding: '40px', borderRadius: '12px', 
-        background: 'rgba(0,0,0,0.7)', boxShadow: `0 0 50px rgba(${connected ? '34, 197, 94' : '239, 68, 68'}, 0.2)`, textAlign: 'center', minWidth: '450px'
+      {/* 3D Visualization Layer */}
+      <div style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 0 }}>
+        <Canvas camera={{ position: [0, 0, 1] }}>
+          <ParticleGrid />
+        </Canvas>
+      </div>
+
+      {/* UI Overlay Layer */}
+      <div style={{ 
+        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', 
+        zIndex: 10, pointerEvents: 'all', textAlign: 'center'
       }}>
-        <h1 style={{ fontSize: '2.5rem', letterSpacing: '10px', color: '#fff', margin: 0 }}>AETHER OS</h1>
-        <p style={{ color: connected ? '#4ade80' : '#f87171', fontSize: '0.8rem', letterSpacing: '2px', margin: '10px 0 30px 0' }}>
-          {connected ? 'API LINK SECURED' : 'AWAITING BACKEND SYNCHRONIZATION'}
-        </p>
-
-        <div style={{ 
-          background: '#000', border: '1px solid #1e293b', padding: '15px', 
-          textAlign: 'left', fontSize: '0.8rem', height: '150px', overflowY: 'auto', marginBottom: '20px' 
+        
+        <div style={{
+          border: `1px solid ${connected ? 'rgba(34, 197, 94, 0.4)' : 'rgba(59, 130, 246, 0.3)'}`, 
+          padding: '40px', borderRadius: '12px', background: 'rgba(0, 0, 0, 0.8)', 
+          backdropFilter: 'blur(10px)', boxShadow: '0 0 40px rgba(0,0,0,0.5)', minWidth: '400px'
         }}>
-          {logs.map((l, i) => (
-            <div key={i} style={{ color: l.includes('[NETWORK] FATAL') ? '#ef4444' : '#94a3b8', margin: '4px 0' }}>
-              {l}
-            </div>
-          ))}
-        </div>
+          <h1 style={{ color: '#fff', letterSpacing: '8px', fontSize: '2.2rem', margin: 0 }}>AETHER OS</h1>
+          <p style={{ color: '#3b82f6', fontSize: '0.75rem', letterSpacing: '2px', margin: '8px 0 30px 0' }}>NEURAL MESH ARCHITECTURE</p>
 
-        <button 
-          onClick={transmitVector}
-          disabled={!connected}
-          style={{
-            background: 'transparent', border: `1px solid ${connected ? '#22c55e' : '#475569'}`, 
-            color: connected ? '#22c55e' : '#475569', opacity: connected ? 1 : 0.5,
-            padding: '15px 30px', cursor: connected ? 'pointer' : 'not-allowed', fontSize: '1rem', letterSpacing: '2px',
-          }}>
-          TRANSMIT CORE SIGNAL //
-        </button>
+          <div style={{ height: '120px', overflow: 'hidden', background: 'rgba(0,0,0,0.4)', border: '1px solid #1e293b', padding: '10px', textAlign: 'left', fontSize: '0.7rem', marginBottom: '20px' }}>
+            {logs.slice(-5).map((l, i) => <div key={i} style={{ color: '#94a3b8', marginBottom: '4px' }}>{l}</div>)}
+          </div>
+
+          <button 
+            onClick={transmit}
+            disabled={!connected}
+            style={{
+              background: 'transparent', border: `1px solid ${connected ? '#22c55e' : '#334155'}`,
+              color: connected ? '#22c55e' : '#475569', padding: '12px 24px', cursor: connected ? 'pointer' : 'not-allowed'
+            }}>
+            {connected ? 'ACTIVATE CORE SYSTEM' : 'AWAITING COMMAND LINK'}
+          </button>
+        </div>
       </div>
     </div>
   );
