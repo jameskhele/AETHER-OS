@@ -22,12 +22,14 @@ wss.on('connection', function connection(ws) {
       res.on('data', (d) => body += d);
       res.on('end', () => {
         try {
-          const json = JSON.parse(body);
-          const modelList = json.models || [];
-          // Find the absolute best supported Gemini model automatically
-          const found = modelList.find(m => m.name.includes('gemini') && m.supportedGenerationMethods.includes('generateContent'));
+          const j = JSON.parse(body);
+          // EXCLUDE THE EXHAUSTED 2.5-FLASH MODEL TO UNLOCK A FRESH QUOTA POOL!
+          const found = j.models.find(m => 
+            m.supportedGenerationMethods.includes('generateContent') && 
+            !m.name.includes('2.5-flash')
+          );
           
-          if (!found) throw new Error("No Gemini found.");
+          if (!found) throw new Error("All available model quotas potentially exhausted.");
           
           const bestModel = found.name;
           console.log(`[SYS] Model Identified: ${bestModel}`);
