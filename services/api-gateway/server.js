@@ -28,10 +28,14 @@ wss.on('connection', function connection(ws) {
           const allModels = j.models ? j.models.map(m => m.name.replace('models/','')).join(', ') : 'None';
           ws.send(`[INVENTORY] AVAILABLE MODELS: ${allModels}`);
 
-          // EXPLICIT WATERFALL OF HIGH-QUOTA STABLE BRAINS!
-          const targetOrder = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-pro'];
-          let found = null;
+          // THE ULTIMATE VERIFIED MODEL FALLBACK ARRAY FROM YOUR INVENTORY!
+          const targetOrder = [
+            'gemini-flash-lite-latest',  // High-volume stable king!
+            'gemini-flash-latest', 
+            'gemini-3.1-flash-lite'     // The new super-experimental fallback!
+          ];
           
+          let found = null;
           for (const target of targetOrder) {
             found = j.models.find(m => 
               m.supportedGenerationMethods.includes('generateContent') && 
@@ -40,12 +44,9 @@ wss.on('connection', function connection(ws) {
             if (found) break;
           }
           
-          // FALLBACK EXCLUDING GEMMA (WHICH CRASHED)
+          // LAST RESORT FROM YOUR ACTUAL MANIFEST
           if (!found) {
-            found = j.models.find(m => 
-              m.supportedGenerationMethods.includes('generateContent') && 
-              !m.name.includes('gemma') && !m.name.includes('2.5') && !m.name.includes('2.0')
-            );
+             found = j.models.find(m => m.supportedGenerationMethods.includes('generateContent') && !m.name.includes('gemma'));
           }
 
           if (!found) throw new Error("NO COMPATIBLE BRAINS FOUND.");
