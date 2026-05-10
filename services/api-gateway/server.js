@@ -23,24 +23,32 @@ wss.on('connection', function connection(ws) {
       res.on('end', () => {
         try {
           const j = JSON.parse(body);
-          // EXPLICIT WATERFALL OF HIGH-QUOTA STABLE BRAINS!
-          const targetOrder = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
-          let found = null;
+          
+          // DUMP THE ENTIRE LIST OF MODELS TO THE UI SO WE CAN SEE OUR CHOICES!
+          const allModels = j.models ? j.models.map(m => m.name.replace('models/','')).join(', ') : 'None';
+          ws.send(`[INVENTORY] AVAILABLE MODELS: ${allModels}`);
 
+          // EXPLICIT WATERFALL OF HIGH-QUOTA STABLE BRAINS!
+          const targetOrder = ['gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-pro'];
+          let found = null;
+          
           for (const target of targetOrder) {
             found = j.models.find(m => 
               m.supportedGenerationMethods.includes('generateContent') && 
               m.name.includes(target)
             );
-            if (found) break; // Exit as soon as a robust brain is secured!
+            if (found) break;
           }
           
-          // ABSOLUTE LAST RESORT FALLBACK
+          // FALLBACK EXCLUDING GEMMA (WHICH CRASHED)
           if (!found) {
-            found = j.models.find(m => m.supportedGenerationMethods.includes('generateContent') && !m.name.includes('2.'));
+            found = j.models.find(m => 
+              m.supportedGenerationMethods.includes('generateContent') && 
+              !m.name.includes('gemma') && !m.name.includes('2.5') && !m.name.includes('2.0')
+            );
           }
 
-          if (!found) throw new Error("Google Quota Completely Exhausted on all known robust pipelines.");
+          if (!found) throw new Error("NO COMPATIBLE BRAINS FOUND.");
           
           const bestModel = found.name;
           console.log(`[SYS] Model Identified: ${bestModel}`);
