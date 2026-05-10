@@ -117,14 +117,14 @@ export default function Home() {
         </div>
       </div>
 
-      {/* MAIN VIEWPORT */}
+      {/* MAIN THREE-COLUMN VIEWPORT */}
       <div style={{ flex: 1, display: 'flex', zIndex: 10, position: 'relative' }}>
         
-        {/* LEFT NEURAL STACK */}
-        <div style={{ width: '280px', background: 'rgba(5, 10, 20, 0.8)', borderRight: '1px solid #1e293b', padding: '20px', display: 'flex', flexDirection: 'column' }}>
-          <h3 style={{ fontSize: '0.7rem', color: '#64748b', letterSpacing: '2px', marginBottom: '15px' }}>NEURAL CLUSTERS</h3>
+        {/* LEFT NEURAL STACK (Column 1) */}
+        <div style={{ width: '260px', background: 'rgba(5, 10, 20, 0.8)', borderRight: '1px solid #1e293b', padding: '20px', display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{ fontSize: '0.65rem', color: '#64748b', letterSpacing: '2px', marginBottom: '15px' }}>NEURAL CLUSTERS</h3>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '25px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
             {[
               { id: 'RESEARCHER', c: '#3b82f6', i: '🔍 ANALYZER' },
               { id: 'STRATEGIST', c: '#eab308', i: '💼 INVESTOR' },
@@ -135,72 +135,62 @@ export default function Home() {
               return (
                 <div key={a.id} style={{ 
                   border: `1px solid ${isActive ? a.c : '#1e293b'}`, 
-                  padding: '12px', background: 'rgba(0,0,0,0.4)', borderRadius: '6px',
+                  padding: '10px', background: 'rgba(0,0,0,0.4)', borderRadius: '4px',
                   transition: 'all 0.4s ease',
-                  transform: isActive ? 'scale(1.03)' : 'scale(1)',
-                  boxShadow: isActive ? `0 0 25px ${a.c}44` : 'none',
+                  transform: isActive ? 'scale(1.02)' : 'scale(1)',
+                  boxShadow: isActive ? `0 0 20px ${a.c}33` : 'none',
                   animation: isActive ? 'pulseCard 1s ease-in-out infinite' : 'none'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: a.c, fontSize: '0.75rem', fontWeight: 'bold', letterSpacing: '1px' }}>{a.id.replace('_',' ')}</span>
-                    {isActive && <div style={{ width: '8px', height: '8px', background: a.c, borderRadius: '50%', animation: 'pulseGlow 1s infinite' }} />}
+                    <span style={{ color: a.c, fontSize: '0.7rem', fontWeight: 'bold' }}>{a.id.replace('_',' ')}</span>
                   </div>
-                  <div style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: '4px' }}>{a.i}</div>
+                  <div style={{ fontSize: '0.55rem', color: '#64748b', marginTop: '2px' }}>{a.i}</div>
                 </div>
               );
             })}
           </div>
 
           {/* PROBABILITY METER */}
-          <div style={{ flex: 1, borderTop: '1px dashed #334155', paddingTop: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
-            <h4 style={{ fontSize: '0.65rem', color: '#94a3b8', letterSpacing: '2px', marginBottom: '10px' }}>PROBABILITY CONFLUENCE</h4>
+          <div style={{ flex: 1, borderTop: '1px dashed #334155', paddingTop: '15px', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
+            <h4 style={{ fontSize: '0.6rem', color: '#94a3b8', letterSpacing: '2px', marginBottom: '5px' }}>CONFLUENCE</h4>
             <div style={{ 
-              fontSize: '4rem', fontWeight: '900', color: score > 70 ? '#10b981' : (score > 40 ? '#eab308' : '#ef4444'),
-              textShadow: `0 0 30px ${score > 70 ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.4)'}`, transition: 'all 1.5s cubic-bezier(0.16, 1, 0.3, 1)',
+              fontSize: '3rem', fontWeight: '900', color: score > 70 ? '#10b981' : (score > 40 ? '#eab308' : '#ef4444'),
+              textShadow: `0 0 25px ${score > 70 ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.4)'}`, transition: 'all 1.5s',
               fontFamily: 'sans-serif'
             }}>
-              {score}<span style={{ fontSize: '1.5rem', opacity: 0.4 }}>%</span>
+              {score}<span style={{ fontSize: '1rem', opacity: 0.4 }}>%</span>
             </div>
             
-            <div style={{ height: '8px', width: '100%', background: '#000', borderRadius: '10px', overflow: 'hidden', border: '1px solid #1e293b', marginTop: '10px' }}>
+            <div style={{ height: '6px', width: '100%', background: '#000', borderRadius: '10px', overflow: 'hidden', border: '1px solid #1e293b', marginTop: '5px' }}>
               <div style={{ 
                 height: '100%', width: `${score}%`, 
                 background: `linear-gradient(90deg, #2563eb, ${score > 60 ? '#10b981' : '#ef4444'})`, 
-                transition: 'width 2s ease-out', boxShadow: '0 0 15px rgba(37,99,235,0.5)'
+                transition: 'width 2s ease-out', boxShadow: '0 0 10px rgba(37,99,235,0.5)'
               }}></div>
             </div>
           </div>
         </div>
 
-        {/* CENTER STAGE */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '25px', gap: '20px', background: 'rgba(0,0,0,0.2)' }}>
+        {/* CENTER STAGE (Column 2) */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '20px', gap: '15px', background: 'rgba(0,0,0,0.2)' }}>
           
-          <div style={{ background: 'rgba(15, 23, 42, 0.4)', padding: '20px', border: '1px solid #1e293b', borderRadius: '8px', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-            <div style={{ fontSize: '0.65rem', color: '#eab308', marginBottom: '10px', letterSpacing: '3px', fontWeight: 'bold' }}>GLOBAL DIRECTIVE INGRESS</div>
+          <div style={{ background: 'rgba(15, 23, 42, 0.4)', padding: '15px', border: '1px solid #1e293b', borderRadius: '6px' }}>
+            <div style={{ fontSize: '0.6rem', color: '#eab308', marginBottom: '8px', letterSpacing: '3px', fontWeight: 'bold' }}>DIRECTIVE INPUT</div>
             <div style={{ display: 'flex', gap: '10px' }}>
               <input 
-                type="text"
-                placeholder="ENTER MISSION CRITICAL COMMAND..."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                disabled={!connected}
-                style={{
-                  flex: 1, padding: '18px', background: '#000', border: '1px solid #334155',
-                  color: '#fff', fontFamily: 'monospace', fontSize: '1rem', outline: 'none',
-                  boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5)'
-                }}
+                type="text" placeholder="AWAITING OPERATIONAL COMMAND..." value={prompt} onChange={(e) => setPrompt(e.target.value)} disabled={!connected}
+                style={{ flex: 1, padding: '12px', background: '#000', border: '1px solid #334155', color: '#fff', fontSize: '0.9rem', outline: 'none' }}
               />
               <button onClick={transmit} disabled={!connected || prompt.trim().length === 0} style={{
                   background: connected && prompt.length > 0 ? 'linear-gradient(135deg, #eab308, #ca8a04)' : '#1e293b',
-                  color: '#000', border: 'none', padding: '0 35px', cursor: 'pointer',
-                  fontWeight: '900', letterSpacing: '2px', fontSize: '0.8rem', boxShadow: '0 0 20px rgba(234,179,8,0.2)'
+                  color: '#000', border: 'none', padding: '0 25px', cursor: 'pointer', fontWeight: '900', letterSpacing: '2px', fontSize: '0.75rem'
                 }}>LAUNCH</button>
             </div>
           </div>
 
           <div style={{ 
-            flex: 1, background: 'linear-gradient(to bottom, #000, #050505)', border: '1px solid #1e293b', padding: '20px', 
-            overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', boxShadow: 'inset 0 0 40px rgba(0,0,0,1)'
+            flex: 1, background: 'linear-gradient(to bottom, #000, #050505)', border: '1px solid #1e293b', padding: '15px', 
+            overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: 'inset 0 0 30px rgba(0,0,0,1)'
           }}>
             {logs.map((l, i) => {
               let color = '#94a3b8';
@@ -212,13 +202,68 @@ export default function Home() {
               if (l.includes('---')) color = '#fff';
 
               return (
-                <div key={i} style={{ color, fontSize: '0.85rem', borderLeft: `2px solid ${color}`, paddingLeft: '15px', background: l.includes('[SYSTEM]') ? 'rgba(255,255,255,0.02)' : 'transparent', padding: '8px 15px' }}>
-                  <span style={{ opacity: 0.4, fontSize: '0.7rem', marginRight: '15px' }}>{new Date().toLocaleTimeString()}</span>
+                <div key={i} style={{ color, fontSize: '0.8rem', borderLeft: `2px solid ${color}`, paddingLeft: '12px', padding: '6px 12px', background: l.includes('[SYSTEM]') ? 'rgba(255,255,255,0.01)' : 'transparent' }}>
+                  <span style={{ opacity: 0.4, fontSize: '0.65rem', marginRight: '10px' }}>[{new Date().toLocaleTimeString()}]</span>
                   {l}
                 </div>
               );
             })}
           </div>
+        </div>
+
+        {/* RIGHT COMMAND DECK (Column 3) */}
+        <div style={{ width: '280px', background: 'rgba(5, 10, 20, 0.9)', borderLeft: '1px solid #1e293b', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* VISUAL ANALYTICS GRAPHS */}
+          <div>
+            <h3 style={{ fontSize: '0.65rem', color: '#64748b', letterSpacing: '2px', marginBottom: '15px' }}>SENTIMENT DENSITY</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', height: '120px', alignItems: 'flex-end', padding: '0 10px', borderBottom: '1px solid #334155' }}>
+              {[
+                { label: 'DATA', val: score > 0 ? 85 : 5, color: '#3b82f6' },
+                { label: 'GREED', val: score > 0 ? 92 : 5, color: '#eab308' },
+                { label: 'DANGER', val: score > 0 ? (100 - score) : 5, color: '#ef4444' }
+              ].map(b => (
+                <div key={b.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '30%' }}>
+                  <div style={{ 
+                    width: '100%', height: `${b.val}%`, background: b.color, 
+                    transition: 'height 1.5s ease', boxShadow: `0 0 15px ${b.color}55`,
+                    borderRadius: '2px 2px 0 0'
+                  }} />
+                  <div style={{ fontSize: '0.55rem', color: '#94a3b8', marginTop: '6px' }}>{b.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* AUTONOMOUS ACTIONS */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', borderTop: '1px dashed #334155', paddingTop: '20px' }}>
+            <h3 style={{ fontSize: '0.65rem', color: '#eab308', letterSpacing: '2px', marginBottom: '5px' }}>AUTONOMOUS ACTION</h3>
+            
+            {[
+              { t: '🟢 INITIATE SCALE', a: 'Expedite scaling and launch immediate funding round.', c: '#10b981' },
+              { t: '🔴 ABORT MISSION', a: 'Execute immediate failsafe protocols and halt all actions.', c: '#ef4444' },
+              { t: '🔵 RE-SCAN VECTOR', a: 'Perform deep audit scanning for alternative data vectors.', c: '#3b82f6' }
+            ].map(act => (
+              <button key={act.t} 
+                onClick={() => { setPrompt(act.a); setTimeout(() => transmit(), 100); }}
+                disabled={!connected || score === 0}
+                style={{
+                  background: 'rgba(0,0,0,0.3)', border: `1px solid ${score > 0 ? act.c : '#334155'}`,
+                  color: score > 0 ? act.c : '#64748b', padding: '12px', fontSize: '0.65rem', textAlign: 'left',
+                  cursor: score > 0 ? 'pointer' : 'not-allowed', borderRadius: '4px', transition: 'all 0.2s',
+                  fontWeight: 'bold', letterSpacing: '1px', textTransform: 'uppercase'
+                }}
+                onMouseOver={(e) => score > 0 && (e.currentTarget.style.background = act.c + '22')}
+                onMouseOut={(e) => score > 0 && (e.currentTarget.style.background = 'rgba(0,0,0,0.3)')}
+              >
+                {act.t}
+              </button>
+            ))}
+            <p style={{ fontSize: '0.55rem', color: '#64748b', fontStyle: 'italic', marginTop: '5px' }}>
+              *Actions lock until Node Consensus is satisfied.
+            </p>
+          </div>
+
         </div>
       </div>
 
