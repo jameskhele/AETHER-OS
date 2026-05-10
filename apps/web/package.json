@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@aether/types": "workspace:*",
+    "zustand": "^4.5.2",
     "react": "rc",
     "react-dom": "rc",
     "next": "15.0.3",

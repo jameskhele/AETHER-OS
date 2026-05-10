@@ -1,18 +1,16 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import type { WebSocketMessage, AgentRole } from '@aether/types';
+import { useEffect, useRef } from 'react';
+import type { WebSocketMessage } from '@aether/types';
+import { useAetherStore } from '../store/useAetherStore';
 
 export default function Home() {
-  const [logs, setLogs] = useState<WebSocketMessage[]>([]);
-  const [connected, setConnected] = useState(false);
-  const [prompt, setPrompt] = useState('');
-  const [score, setScore] = useState(0);
-  const [activeAgent, setActiveAgent] = useState<AgentRole | ''>('');
+  // ATOMIC SELECTORS FROM ZUSTAND MASTER STORE
+  const { 
+    logs, connected, prompt, score, activeAgent, 
+    setConnected, setPrompt, addLog, clearTelemetry, updateAgentActivity, setScore 
+  } = useAetherStore();
   
-  // Live Telemetry Bar States!
-  const [dataVal, setDataVal] = useState(5);
-  const [greedVal, setGreedVal] = useState(5);
-  const [dangerVal, setDangerVal] = useState(5);
+  const { dataVal, greedVal, dangerVal } = useAetherStore((s) => s.telemetry);
 
   const socketRef = useRef<WebSocket | null>(null);
 
@@ -32,26 +30,23 @@ export default function Home() {
 
     socket.onopen = () => {
       setConnected(true);
-      setLogs(p => [...p, { type: 'NETWORK', content: 'SECURE LINK ESTABLISHED', timestamp: new Date().toISOString() }]);
+      addLog({ type: 'NETWORK', content: 'SECURE LINK ESTABLISHED', timestamp: new Date().toISOString() });
       speakText("Neural Connection Established.");
     };
 
     socket.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data) as WebSocketMessage;
-        setLogs(p => [...p, msg]);
+        addLog(msg);
 
         if (msg.sender === 'RESEARCHER') {
-          setActiveAgent('RESEARCHER');
-          setDataVal(Math.floor(Math.random() * 25) + 70);
+          updateAgentActivity('RESEARCHER', Math.floor(Math.random() * 25) + 70, 0, 0);
         } else if (msg.sender === 'STRATEGIST') {
-          setActiveAgent('STRATEGIST');
-          setGreedVal(Math.floor(Math.random() * 20) + 80);
+          updateAgentActivity('STRATEGIST', 0, Math.floor(Math.random() * 20) + 80, 0);
         } else if (msg.sender === 'RISK_OFFICER') {
-          setActiveAgent('RISK_OFFICER');
-          setDangerVal(Math.floor(Math.random() * 40) + 50);
+          updateAgentActivity('RISK_OFFICER', 0, 0, Math.floor(Math.random() * 40) + 50);
         } else if (msg.sender === 'DIRECTOR') {
-          setActiveAgent('DIRECTOR');
+          updateAgentActivity('DIRECTOR', 0, 0, 0);
         }
 
         const scoreMatch = msg.content.match(/\[SCORE:\s*(\d+)\]/i);
@@ -67,20 +62,19 @@ export default function Home() {
       }
     };
     return () => socket.close();
-  }, []);
+  }, [addLog, setConnected, setScore, updateAgentActivity]);
 
   const transmit = () => {
     if (socketRef.current && connected && prompt.trim().length > 0) {
-      setScore(0);
-      setActiveAgent('');
-      setDataVal(5); setGreedVal(5); setDangerVal(5);
-      setLogs(p => [...p, { type: 'SYSTEM', content: `--- MISSION LAUNCH: ${prompt} ---`, timestamp: new Date().toISOString() }]);
+      clearTelemetry();
+      addLog({ type: 'SYSTEM', content: `--- MISSION LAUNCH: ${prompt} ---`, timestamp: new Date().toISOString() });
       socketRef.current.send(prompt);
     }
   };
 
   const downloadBrief = () => {
-    const content = `JK SYSTEMS - AETHER OS EXECUTIVE BRIEF\nDATE: ${new Date().toLocaleString()}\nDIRECTIVE: ${prompt}\n\nREPORT LOGS:\n` + logs.join('\n');
+    const logText = logs.map(m => `[${m.timestamp}] ${m.sender || 'SYSTEM'}: ${m.content}`).join('\n');
+    const content = `JK SYSTEMS - AETHER OS EXECUTIVE BRIEF\nDATE: ${new Date().toLocaleString()}\nDIRECTIVE: ${prompt}\n\nREPORT LOGS:\n\n${logText}`;
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
