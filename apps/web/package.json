@@ -15,7 +15,7 @@
     "zustand": "^4.5.2",
     "react": "rc",
     "react-dom": "rc",
-    "next": "15.0.3",
+    "next": "15.0.7",
     "framer-motion": "^11.11.17",
     "lucide-react": "^0.460.0",
     "three": "^0.170.0",
