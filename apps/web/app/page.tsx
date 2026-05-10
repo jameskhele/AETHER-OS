@@ -6,13 +6,28 @@ import { useAetherStore } from '../store/useAetherStore';
 export default function Home() {
   // ATOMIC SELECTORS FROM ZUSTAND MASTER STORE
   const { 
-    logs, connected, prompt, score, activeAgent, 
-    setConnected, setPrompt, addLog, clearTelemetry, updateAgentActivity, setScore 
+    logs, history, connected, prompt, score, activeAgent, 
+    setConnected, setPrompt, addLog, setHistory, clearTelemetry, updateAgentActivity, setScore 
   } = useAetherStore();
   
   const { dataVal, greedVal, dangerVal } = useAetherStore((s) => s.telemetry);
 
   const socketRef = useRef<WebSocket | null>(null);
+
+  // 🛰️ SYNC: Load Historical Archives from SQL!
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const res = await fetch('/api/history').then(r => r.json());
+        if (res.success) setHistory(res.data);
+      } catch (e) { console.error("ARCHIVE LOAD FAILURE", e); }
+    };
+    loadHistory();
+    
+    // Periodically poll every 30s for total consistency
+    const itvl = setInterval(loadHistory, 30000);
+    return () => clearInterval(itvl);
+  }, [setHistory]);
 
   useEffect(() => {
     const speakText = (t: string) => {
@@ -164,7 +179,7 @@ export default function Home() {
           </div>
 
           {/* PROBABILITY METER */}
-          <div style={{ flex: 1, borderTop: '1px dashed #334155', paddingTop: '15px', display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
+          <div style={{ borderTop: '1px dashed #334155', paddingTop: '15px', marginBottom: '20px', textAlign: 'center' }}>
             <h4 style={{ fontSize: '0.6rem', color: '#94a3b8', letterSpacing: '2px', marginBottom: '5px' }}>CONFLUENCE</h4>
             <div style={{ 
               fontSize: '3rem', fontWeight: '900', color: score > 70 ? '#10b981' : (score > 40 ? '#eab308' : '#ef4444'),
@@ -173,7 +188,6 @@ export default function Home() {
             }}>
               {score}<span style={{ fontSize: '1rem', opacity: 0.4 }}>%</span>
             </div>
-            
             <div style={{ height: '6px', width: '100%', background: '#000', borderRadius: '10px', overflow: 'hidden', border: '1px solid #1e293b', marginTop: '5px' }}>
               <div style={{ 
                 height: '100%', width: `${score}%`, 
@@ -181,6 +195,31 @@ export default function Home() {
                 transition: 'width 2s ease-out', boxShadow: '0 0 10px rgba(37,99,235,0.5)'
               }}></div>
             </div>
+          </div>
+
+          {/* 🏛️ MISSION ARCHIVE DECK */}
+          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '5px', borderTop: '1px solid #1e293b', paddingTop: '15px' }}>
+            <h3 style={{ fontSize: '0.65rem', color: '#64748b', letterSpacing: '2px', marginBottom: '8px' }}>HISTORY VAULT</h3>
+            
+            {history.length === 0 ? (
+              <div style={{ fontSize: '0.6rem', opacity: 0.4, fontStyle: 'italic' }}>NO PRIOR MISSIONS</div>
+            ) : (
+              history.map((h: any) => (
+                <div key={h.id} style={{ 
+                  padding: '8px', background: 'rgba(0,0,0,0.3)', border: '1px solid #0f172a', 
+                  borderRadius: '3px', cursor: 'pointer'
+                }} onMouseOver={(e) => e.currentTarget.style.borderColor = '#3b82f6'} onMouseOut={(e) => e.currentTarget.style.borderColor = '#0f172a'}
+                   onClick={() => setPrompt(h.prompt)}>
+                  <div style={{ fontSize: '0.7rem', color: '#e2e8f0', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {h.prompt}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.55rem', color: '#475569', marginTop: '3px' }}>
+                    <span>{new Date(h.createdAt).toLocaleDateString()}</span>
+                    <span style={{ color: '#10b981' }}>{h._count?.logs || 0} LOGS</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

@@ -4,6 +4,7 @@ import type { WebSocketMessage, AgentRole, TelemetryState } from '@aether/types'
 interface AetherState {
   // Core Data
   logs: WebSocketMessage[];
+  history: any[];
   connected: boolean;
   prompt: string;
   
@@ -16,6 +17,7 @@ interface AetherState {
   setConnected: (status: boolean) => void;
   setPrompt: (val: string) => void;
   addLog: (msg: WebSocketMessage) => void;
+  setHistory: (h: any[]) => void;
   clearTelemetry: () => void;
   updateAgentActivity: (agent: AgentRole | '', data: number, greed: number, danger: number) => void;
   setScore: (val: number) => void;
@@ -23,6 +25,7 @@ interface AetherState {
 
 export const useAetherStore = create<AetherState>((set) => ({
   logs: [],
+  history: [],
   connected: false,
   prompt: '',
   score: 0,
@@ -32,6 +35,7 @@ export const useAetherStore = create<AetherState>((set) => ({
   setConnected: (connected) => set({ connected }),
   setPrompt: (prompt) => set({ prompt }),
   addLog: (msg) => set((state) => ({ logs: [...state.logs, msg] })),
+  setHistory: (history) => set({ history }),
   setScore: (score) => set({ score }),
   
   clearTelemetry: () => set({
