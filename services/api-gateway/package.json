@@ -9,7 +9,8 @@
   "dependencies": {
     "ws": "^8.18.0",
     "@aether/types": "workspace:*",
-    "@aether/database": "workspace:*"
+    "@aether/database": "workspace:*",
+    "@prisma/client": "^5.14.0"
   },
   "private": true
 }

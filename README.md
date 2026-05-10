@@ -1,138 +1,85 @@
-# 💠 AETHER OS
+# AETHER // OS v2.5
+### 🚀 Sovereign AI Operations Hub & Distributed Agent Ecosystem
 
-## Autonomous Multi-Agent Intelligence Operating System for Real-Time Decision Simulation
+![AETHER OS Architecture](https://img.shields.io/badge/Stack-Next.js_15_%7C_Prisma_%7C_TurboRepo_%7C_WebSockets-blueviolet?style=for-the-badge)
+![Engineering Tier](https://img.shields.io/badge/Grade-Enterprise_SaaS-emerald?style=for-the-badge)
 
-[![Alpha Release](https://img.shields.io/badge/Status-Active%20Phase%201-blueviolet?style=for-the-badge)](https://github.com/jameskhele/AETHER-OS)
-[![Architecture](https://img.shields.io/badge/Architecture-Microservices%20Monorepo-0ea5e9?style=for-the-badge)](https://turbo.build/)
-[![Tech Stack](https://img.shields.io/badge/Next.js%2015%20%7C%20FastAPI%20%7C%20LangGraph-000000?style=for-the-badge)](https://github.com/jameskhele/AETHER-OS)
-
-<div align="center">
-  <br/>
-  <img src="./livetest.gif" width="80%" style="border: 1px solid #3b82f6; border-radius: 8px;" />
-  <br/>
-  <sub><i>Live Demonstration of Real-Time WebSocket Ingress & Orchestration</i></sub>
-  <br/><br/>
-</div>
-
-**AETHER OS** is an enterprise-grade, distributed intelligence hub engineered to simulate autonomous collaborative decision environments. Designed specifically as a high-load, multi-agent command and control platform, it aggregates global data streams and facilitates real-time logical debate between specialized autonomous entities.
-
-> *Think NASA Mission Control meets distributed, hyper-scalable Agentic reasoning.*
+AETHER // OS is an elite, production-grade multi-agent orchestration platform designed to synthesize complex logical directives via chained Artificial Intelligence workflows. This repository showcases distributed systems engineering, real-time atomic state management, and high-concurrency backend synchronization.
 
 ---
 
-### 🧠 The Core Concept (In 30 Seconds)
-AETHER OS acts as a **Centralized Walkie-Talkie War Room**. Instead of interacting with a single static chatbot, users issue high-level directives to a "Mission Deck." 
-
-The operating system automatically deploys, orchestrates, and mediates a **Team of Specialized AI Agents** (Researcher, Strategist, Risk Officer) who collaborate in real-time over a unified streaming fabric to produce rapid, vetted intelligence.
-
----
-
-## 🏗️ Master Architecture Outline
-
-Aether OS runs as a federated network of cognitive services organized within an event-driven, streaming-first infrastructure.
+## 🏗️ System Architecture
 
 ```mermaid
-graph TB
-    subgraph "Client Intelligence Space (Vercel/Edge)"
-        MC[Next.js 15 Mission Control] --> GV[Three.js 3D Visualization Grid]
-        MC --> RB[React-Three-Fiber Rendering]
+graph TD
+    subgraph User Layer
+        UI[Dashboard React/Next.js] -->|Zustand| Store[Atomic State Vault]
     end
     
-    subgraph "Edge Propagation Gateway"
-        AG[FastAPI / Node.js API Gateway] --> WS[WebSocket Streaming Tier]
-        WS --> |Real-time PubSub| MC
+    subgraph Transmission Layer
+        Store <-->|Bi-Directional WebSockets| AGW[API Gateway Node.js]
     end
 
-    subgraph "Autonomous Cognition Tier (Distributed Workers)"
-        AG --> |Job Ingress| RQ[(Redis Streams / Kafka)]
-        RQ --> CA[LangGraph Coordinator Agent]
-        CA --> RA[Research Node]
-        CA --> SA[Strategy Node]
-        CA --> FxA[Risk/Finance Node]
+    subgraph Intelligence Layer
+        AGW -->|Dynamic Discovery| GoogleAI[Google Gemini-Flash Ecosystem]
+        GoogleAI --> R[Researcher Agent]
+        GoogleAI --> S[Strategist Agent]
+        GoogleAI --> RO[Risk Officer Agent]
+        GoogleAI --> D[Director Agent]
     end
 
-    subgraph "Unified Persistence Matrix"
-        RA & SA --> VDB[(Qdrant Vector Memory)]
-        CA --> PDB[(Postgres Persistence)]
-        CA --> NDB[(Neo4j Knowledge Graph)]
+    subgraph Persistence Layer
+        AGW -->|ORM Triggers| Prisma[Prisma Engine]
+        Prisma --> DB[(Transactional SQL Vault)]
+        DB -->|Direct Read| UI
     end
 ```
 
----
+## 🌟 Principal Engineering Highlights
 
-## 🚀 Elite Features Matrix
+- **🔒 Enterprise Multi-Tenancy:** Orchestrates isolated data partitions (`Organizations`, `Users`, `Missions`) ensuring absolute vertical data integrity.
+- **⚡ Dynamic Event-Driven Bus:** Replaces traditional REST latency with high-fidelity WebSocket tunneling for milliseconds-grade response streams.
+- **🧠 Multi-Agent Reasoning:** Implements automated recursive synthesis where independent model contexts act as specialized logical nodes (Analyst, Investor, Director).
+- **⚛️ Atomic State Decoupling:** Zero-latency UI reactivity leveraging optimized **Zustand stores**, drastically minimizing layout repaints and maximizing render performance.
+- **📈 Real-Time Visual Telemetry:** Custom high-frequency rendering of Confluence Metrics, Live Threat Scores, and Profitability Indices derived directly from AI payload heuristics.
 
-### 1. Real-Time Multi-Agent Orchestration
-Leveraging `LangGraph` and specialized semantic routers, deployed agents formulate hypotheses, counter-argue, and arrive at emergent decision trees dynamically.
-
-### 2. Vector-Space Semantic Continuity
-A distributed long-term memory structure enabling agents to inherit historical intelligence vectors asynchronously, optimized via `Qdrant`.
-
-### 3. The 'Mission Control' Dash
-A high-density reactive terminal written in **Next.js 15 + Framer Motion** designed to show glowing real-time graphs of agent interaction, thought logs, and system health.
-
-### 4. Scalable Infrastructure as Code
-Engineered to be deployed across hybrid clusters utilizing standard **Docker Compose** orchestrations and cloud-agnostic deployment pathways.
-
----
-
-## 🛠️ High-Efficiency Tech Core
+## 🛠️ The Elite Tech Stack
 
 | Tier | Technologies |
 | :--- | :--- |
-| **Frontend Platform** | Next.js 15, React 19, Tailwind, Framer Motion, Three.js |
-| **AI Orchestration** | LangGraph, OpenAI SDK v4, Claude-3.5, DeepSeek-R1 |
-| **Backend Logic** | FastAPI (Python 3.11+), pydantic v2, asynchronous runtimes |
-| **Data Pipelines** | Redis Streams, WebSockets, Postgres, Qdrant Cloud |
-| **Infrastructure** | Docker, GitHub Actions CI/CD, Terraform, Turborepo |
+| **Monorepo Orchestrator** | `Turborepo`, `PNPM Workspaces` |
+| **Frontend Engine** | `Next.js 15`, `React 19`, `TypeScript` |
+| **Global State** | `Zustand` |
+| **Server Environment** | `Node.js`, `Fast-WS` |
+| **Data Integrity** | `Prisma ORM`, `PostgreSQL` / `SQLite` |
+| **Intelligence Core** | `Google Gemini-Flash APIs` |
 
 ---
 
-## 📂 Domain Domain Hierarchy (Monorepo)
+## 🚀 Installation & Ignite Sequence
 
-```text
-AETHER-OS/
-├── apps/
-│   ├── web/                   # Next.js 15 Main Mission Control Dashboard
-│   └── docs/                  # Internal engineering design docs
-├── services/
-│   ├── api-gateway/           # Ingress traffic orchestrator
-│   └── ai-orchestrator/       # LangGraph agent runtimes & workflows
-├── infrastructure/
-│   ├── docker/                # Multi-container configurations
-│   └── k8s/                   # Kubernetes manifests (Planned)
-├── ai/
-│   ├── agents/                # Definition matrix for customized Persona agents
-│   └── memory/                # RAG/Embedding pipelines
-└── packages/
-    ├── ui/                    # Shared shadcn/ui design system
-    └── configs/               # Centralized ESLint/Prettier/TSConfig
+### 1. Clone and Install
+```powershell
+git clone https://github.com/jameskhele/AETHER-OS.git
+cd AETHER-OS
+pnpm install
 ```
 
----
+### 2. Materialize SQL Database
+```powershell
+pnpm --filter @aether/database run db:push
+pnpm --filter @aether/database run db:generate
+```
 
-## 🏁 Roadmap to Genesis
-
-### 📍 Phase 1: Foundations (COMPLETED ✅)
-- [x] Establish Master Monorepo Hierarchy (Turborepo Skeleton).
-- [x] Define Global System Design and Architecture Diagrams.
-- [x] Set Infrastructure Docker scaffolding.
-
-### 📍 Phase 2: Front-End Kinetic Design (COMPLETED ✅)
-- [x] Setup Next.js 15 app routing and design tokens.
-- [x] Establish secure UI layer components.
-- [x] Live WebSocket bridge negotiation.
-
-### 📍 Phase 3: Autonomous Brain Nodes
-- Deploy basic Research/Executive agent logic using LangGraph.
-- Connect vector store for basic recall.
-- Implement tool calling (Google Search/Finance API mocks).
+### 3. Launch Control Deck
+```powershell
+pnpm run dev
+```
+Open your navigator at `http://localhost:3000` to assume command.
 
 ---
 
-## ⚖️ Contributing & Governance
+## 🏆 Creator Profile
+Engineered with elite system-design methodologies by **JAMES KHELE**. 
 
-This represents an aggressive, long-horizon development pipeline.
-Review the `CONTRIBUTING.md` for governance concerning semantic commit enforcement and pipeline validation rules.
-
-*Project curated and pioneered by James Khele @ 2026*
+*Designed for extreme scalability. Engineered for the future.*

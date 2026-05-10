@@ -11,6 +11,7 @@
   "dependencies": {
     "@aether/types": "workspace:*",
     "@aether/database": "workspace:*",
+    "@prisma/client": "^5.14.0",
     "zustand": "^4.5.2",
     "react": "rc",
     "react-dom": "rc",
