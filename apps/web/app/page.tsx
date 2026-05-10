@@ -1,12 +1,13 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import type { WebSocketMessage, AgentRole } from '@aether/types';
 
 export default function Home() {
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState<WebSocketMessage[]>([]);
   const [connected, setConnected] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [score, setScore] = useState(0);
-  const [activeAgent, setActiveAgent] = useState('');
+  const [activeAgent, setActiveAgent] = useState<AgentRole | ''>('');
   
   // Live Telemetry Bar States!
   const [dataVal, setDataVal] = useState(5);
@@ -31,36 +32,38 @@ export default function Home() {
 
     socket.onopen = () => {
       setConnected(true);
-      setLogs(p => [...p, "[NETWORK] Secure Link Established."]);
+      setLogs(p => [...p, { type: 'NETWORK', content: 'SECURE LINK ESTABLISHED', timestamp: new Date().toISOString() }]);
       speakText("Neural Connection Established.");
     };
 
     socket.onmessage = (e) => {
-      const rawData = e.data as string;
-      setLogs(p => [...p, `[SYSTEM] ${rawData}`]);
-      
-      // Real-Time Neural Chart Response Triggers!
-      if (rawData.includes('[RESEARCHER]')) {
-        setActiveAgent('RESEARCHER');
-        setDataVal(Math.floor(Math.random() * 25) + 70); // Shoot up between 70-95!
-      }
-      if (rawData.includes('[STRATEGIST]')) {
-        setActiveAgent('STRATEGIST');
-        setGreedVal(Math.floor(Math.random() * 20) + 80); // High greed!
-      }
-      if (rawData.includes('[RISK_OFFICER]')) {
-        setActiveAgent('RISK_OFFICER');
-        setDangerVal(Math.floor(Math.random() * 40) + 50); // Intense danger scale!
-      }
-      if (rawData.includes('[DIRECTOR]')) setActiveAgent('DIRECTOR');
+      try {
+        const msg = JSON.parse(e.data) as WebSocketMessage;
+        setLogs(p => [...p, msg]);
 
-      const scoreMatch = rawData.match(/\[SCORE:\s*(\d+)\]/i);
-      if (scoreMatch) {
-        setScore(Number(scoreMatch[1]));
-      }
+        if (msg.sender === 'RESEARCHER') {
+          setActiveAgent('RESEARCHER');
+          setDataVal(Math.floor(Math.random() * 25) + 70);
+        } else if (msg.sender === 'STRATEGIST') {
+          setActiveAgent('STRATEGIST');
+          setGreedVal(Math.floor(Math.random() * 20) + 80);
+        } else if (msg.sender === 'RISK_OFFICER') {
+          setActiveAgent('RISK_OFFICER');
+          setDangerVal(Math.floor(Math.random() * 40) + 50);
+        } else if (msg.sender === 'DIRECTOR') {
+          setActiveAgent('DIRECTOR');
+        }
 
-      if (rawData.includes(']') && !rawData.includes('DEPLOYING') && !rawData.includes('Analyzing')) {
-        speakText(rawData);
+        const scoreMatch = msg.content.match(/\[SCORE:\s*(\d+)\]/i);
+        if (scoreMatch) {
+          setScore(Number(scoreMatch[1]));
+        }
+
+        if (msg.type === 'ANALYSIS') {
+          speakText(msg.content);
+        }
+      } catch (err) {
+        console.error("MALFORMED FRAME RECEIVED:", e.data);
       }
     };
     return () => socket.close();
@@ -70,9 +73,8 @@ export default function Home() {
     if (socketRef.current && connected && prompt.trim().length > 0) {
       setScore(0);
       setActiveAgent('');
-      // Reset the telemetry bars to zero for fresh animation!
       setDataVal(5); setGreedVal(5); setDangerVal(5);
-      setLogs(p => [...p, `--- MISSION LAUNCH: ${prompt} ---`]);
+      setLogs(p => [...p, { type: 'SYSTEM', content: `--- MISSION LAUNCH: ${prompt} ---`, timestamp: new Date().toISOString() }]);
       socketRef.current.send(prompt);
     }
   };
@@ -209,19 +211,30 @@ export default function Home() {
             flex: 1, background: 'linear-gradient(to bottom, #000, #050505)', border: '1px solid #1e293b', padding: '15px', 
             overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', boxShadow: 'inset 0 0 30px rgba(0,0,0,1)'
           }}>
-            {logs.map((l, i) => {
-              let color = '#94a3b8';
-              if (l.includes('[RESEARCHER]')) color = '#60a5fa';
-              if (l.includes('[STRATEGIST]')) color = '#facc15';
-              if (l.includes('[RISK_OFFICER]')) color = '#f87171';
-              if (l.includes('[DIRECTOR]')) color = '#c084fc';
-              if (l.includes('>>>')) color = '#10b981';
-              if (l.includes('---')) color = '#fff';
+            {logs.map((m, i) => {
+              let color = '#94a3b8'; // Default
+              if (m.sender === 'RESEARCHER') color = '#60a5fa';
+              if (m.sender === 'STRATEGIST') color = '#facc15';
+              if (m.sender === 'RISK_OFFICER') color = '#f87171';
+              if (m.sender === 'DIRECTOR') color = '#c084fc';
+              if (m.type === 'NETWORK' || m.sender === 'SYS') color = '#10b981';
+              if (m.type === 'DEPLOY') color = '#334155';
+              if (m.type === 'ERROR') color = '#ef4444';
+
+              const timeLabel = m.timestamp ? new Date(m.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
 
               return (
-                <div key={i} style={{ color, fontSize: '0.8rem', borderLeft: `2px solid ${color}`, paddingLeft: '12px', padding: '6px 12px', background: l.includes('[SYSTEM]') ? 'rgba(255,255,255,0.01)' : 'transparent' }}>
-                  <span style={{ opacity: 0.4, fontSize: '0.65rem', marginRight: '10px' }}>[{new Date().toLocaleTimeString()}]</span>
-                  {l}
+                <div key={i} style={{ 
+                  color, 
+                  fontSize: '0.8rem', 
+                  borderLeft: `2px solid ${color}`, 
+                  padding: '6px 12px', 
+                  background: m.type === 'SYSTEM' ? 'rgba(255,255,255,0.02)' : 'transparent',
+                  fontFamily: 'monospace'
+                }}>
+                  <span style={{ opacity: 0.3, fontSize: '0.6rem', marginRight: '10px' }}>[{timeLabel}]</span>
+                  {m.sender && <span style={{ fontWeight: 'bold', letterSpacing: '1px', opacity: 0.7, marginRight: '8px' }}>[{m.sender}]</span>}
+                  <span style={{ color: '#fff', opacity: m.type === 'DEPLOY' ? 0.5 : 1 }}>{m.content}</span>
                 </div>
               );
             })}
