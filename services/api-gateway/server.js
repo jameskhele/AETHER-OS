@@ -72,7 +72,8 @@ wss.on('connection', function connection(ws) {
                     resolve();
                   } catch (err) { 
                     console.log(`[AGENT FAILED] Raw Body: ${r}`);
-                    ws.send(`[${agent.name}] Neural Limit Triggered.`); 
+                    // Expose real error to user so we can fix it!
+                    ws.send(`[${agent.name}] ERROR: ${r.substring(0, 120).replace(/\n/g, '')}`); 
                     resolve(); 
                   }
                 });
