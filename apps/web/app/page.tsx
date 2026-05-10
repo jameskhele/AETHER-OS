@@ -40,7 +40,8 @@ export default function Home() {
       window.speechSynthesis.speak(u);
     };
 
-    const socket = new WebSocket('ws://localhost:8000/ws/stream');
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000';
+    const socket = new WebSocket(`${wsUrl}/ws/stream`);
     socketRef.current = socket;
 
     socket.onopen = () => {
