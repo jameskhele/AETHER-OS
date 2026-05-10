@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 🏢 THE TENANT: The root level entity owning all data.
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  missions  Mission[]
+}
+
+// 👤 THE ACTOR: The authenticated user initiating queries.
+model User {
+  id             String       @id @default(uuid())
+  email          String       @unique
+  name           String?
+  role           UserRole     @default(VIEWER)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  missions       Mission[]
+  createdAt      DateTime     @default(now())
+}
+
+// 🚀 THE TRANSACTION: A single operational directive event.
+model Mission {
+  id             String       @id @default(uuid())
+  prompt         String
+  status         String       @default("INITIATED")
+  
+  // Multi-Tenant Locks
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  
+  creatorId      String
+  creator        User         @relation(fields: [creatorId], references: [id])
+
+  // The child payload audit trail
+  logs           LogEntry[]
+  
+  createdAt      DateTime     @default(now())
+  completedAt    DateTime?
+}
+
+// 📊 THE TELEMETRY: The atomic trace records from the AI Agents.
+model LogEntry {
+  id        String   @id @default(uuid())
+  missionId String
+  mission   Mission  @relation(fields: [missionId], references: [id])
+  
+  type      String   // SYSTEM, DEPLOY, ANALYSIS
+  sender    String?  // RESEARCHER, STRATEGIST
+  content   String   @db.Text
+  
+  timestamp DateTime @default(now())
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  OPERATOR
+  VIEWER
+}

@@ -31,6 +31,20 @@ services:
     networks:
       - aether-net
 
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: aether_admin
+      POSTGRES_PASSWORD: aether_ultra_secret
+      POSTGRES_DB: aether_vault
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - aether-net
+
   vector-db:
     image: qdrant/qdrant:latest
     ports:
@@ -47,3 +61,4 @@ networks:
 
 volumes:
   qdrant_data:
+  postgres_data:
